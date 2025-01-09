@@ -1,74 +1,100 @@
-import { render, screen, fireEvent } from '@/lib/test-utils';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { Modal } from './Modal';
 
 describe('Modal', () => {
   const defaultProps = {
     isOpen: true,
     onClose: jest.fn(),
-    children: <div>Modal Content</div>,
+    title: 'Test Modal',
   };
 
   beforeEach(() => {
-    // Create portal root
-    const portalRoot = document.createElement('div');
-    portalRoot.setAttribute('id', 'portal-root');
-    document.body.appendChild(portalRoot);
+    defaultProps.onClose.mockClear();
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it('renders modal content when open', () => {
-    render(<Modal {...defaultProps} />);
+  it('renders when isOpen is true', () => {
+    render(
+      <Modal {...defaultProps}>
+        <div>Modal Content</div>
+      </Modal>
+    );
+    expect(screen.getByText('Test Modal')).toBeInTheDocument();
     expect(screen.getByText('Modal Content')).toBeInTheDocument();
   });
 
-  it('does not render when closed', () => {
-    render(<Modal {...defaultProps} isOpen={false} />);
+  it('does not render when isOpen is false', () => {
+    render(
+      <Modal {...defaultProps} isOpen={false}>
+        <div>Modal Content</div>
+      </Modal>
+    );
+    expect(screen.queryByText('Test Modal')).not.toBeInTheDocument();
     expect(screen.queryByText('Modal Content')).not.toBeInTheDocument();
   });
 
-  it('renders title when provided', () => {
-    render(<Modal {...defaultProps} title="Test Modal" />);
-    expect(screen.getByText('Test Modal')).toBeInTheDocument();
-  });
-
-  it('renders footer when provided', () => {
+  it('calls onClose when close button is clicked', () => {
     render(
-      <Modal {...defaultProps} footer={<button>Close</button>} />
+      <Modal {...defaultProps}>
+        <div>Modal Content</div>
+      </Modal>
     );
-    expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /close/i }));
+    expect(defaultProps.onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('calls onClose when clicking close button', () => {
-    render(<Modal {...defaultProps} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
-    expect(defaultProps.onClose).toHaveBeenCalled();
+  it('calls onClose when clicking outside the modal', () => {
+    render(
+      <Modal {...defaultProps}>
+        <div>Modal Content</div>
+      </Modal>
+    );
+    fireEvent.click(screen.getByTestId('modal-backdrop'));
+    expect(defaultProps.onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('calls onClose when clicking overlay if closeOnOverlayClick is true', () => {
-    render(<Modal {...defaultProps} closeOnOverlayClick={true} />);
-    fireEvent.click(screen.getByRole('dialog').firstChild as Element);
-    expect(defaultProps.onClose).toHaveBeenCalled();
+  it('renders footer content when provided', () => {
+    render(
+      <Modal {...defaultProps} footer={<button>Save</button>}>
+        <div>Modal Content</div>
+      </Modal>
+    );
+    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
   });
 
-  it('does not call onClose when clicking overlay if closeOnOverlayClick is false', () => {
-    render(<Modal {...defaultProps} closeOnOverlayClick={false} />);
-    fireEvent.click(screen.getByRole('dialog').firstChild as Element);
+  it('prevents backdrop click when preventClose is true', () => {
+    render(
+      <Modal {...defaultProps} preventClose>
+        <div>Modal Content</div>
+      </Modal>
+    );
+    fireEvent.click(screen.getByTestId('modal-backdrop'));
     expect(defaultProps.onClose).not.toHaveBeenCalled();
   });
 
-  it('applies size class correctly', () => {
-    const { rerender } = render(<Modal {...defaultProps} size="lg" />);
-    expect(screen.getByRole('dialog').children[1]).toHaveClass('modal-dialog-centered', 'modal-lg');
-
-    rerender(<Modal {...defaultProps} size="sm" />);
-    expect(screen.getByRole('dialog').children[1]).toHaveClass('modal-dialog-centered', 'modal-sm');
+  it('applies custom size class when provided', () => {
+    render(
+      <Modal {...defaultProps} size="lg">
+        <div>Modal Content</div>
+      </Modal>
+    );
+    expect(screen.getByRole('dialog')).toHaveClass('max-w-4xl');
   });
 
-  it('does not show close button when showCloseButton is false', () => {
-    render(<Modal {...defaultProps} showCloseButton={false} />);
-    expect(screen.queryByRole('button', { name: 'Close' })).not.toBeInTheDocument();
+  it('renders with custom className when provided', () => {
+    render(
+      <Modal {...defaultProps} className="custom-modal">
+        <div>Modal Content</div>
+      </Modal>
+    );
+    expect(screen.getByRole('dialog')).toHaveClass('custom-modal');
+  });
+
+  it('renders with custom contentClassName when provided', () => {
+    render(
+      <Modal {...defaultProps} contentClassName="custom-content">
+        <div>Modal Content</div>
+      </Modal>
+    );
+    expect(screen.getByTestId('modal-content')).toHaveClass('custom-content');
   });
 }); 

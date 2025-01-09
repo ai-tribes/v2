@@ -1,9 +1,11 @@
 import { InputHTMLAttributes, ReactNode } from 'react';
+import { FieldProps } from '../Form/Form.types';
 
 export type InputSize = 'sm' | 'md' | 'lg';
 export type InputVariant = 'outline' | 'filled' | 'flushed' | 'unstyled';
 
-export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
+export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>, 
+  Pick<FieldProps, 'error' | 'isRequired'> {
   /**
    * The size of the input
    * @default 'md'
@@ -29,21 +31,10 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
   isDisabled?: boolean;
 
   /**
-   * Whether the input is required
-   * @default false
-   */
-  isRequired?: boolean;
-
-  /**
    * Whether the input is read only
    * @default false
    */
   isReadOnly?: boolean;
-
-  /**
-   * The error message to display
-   */
-  error?: string;
 
   /**
    * Helper text to display below the input

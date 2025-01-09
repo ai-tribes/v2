@@ -1,81 +1,58 @@
-import { FormEvent } from 'react';
-import { FormProps, FormFieldProps, FormGroupProps } from './Form.types';
+import { forwardRef } from 'react';
+import { FormProps } from './Form.types';
+import { cn } from '@/lib/utils';
 
-export function Form({
-  onSubmit,
-  children,
-  isLoading = false,
-  error,
-  successMessage,
-  className = '',
-  ...props
-}: FormProps) {
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (isLoading) return;
+export const Form = forwardRef<HTMLFormElement, FormProps>(
+  (
+    {
+      children,
+      className,
+      isLoading = false,
+      isDisabled = false,
+      error,
+      success,
+      onSubmit,
+      ...props
+    },
+    ref
+  ) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      if (isLoading || isDisabled) return;
 
-    const formData = new FormData(event.currentTarget);
-    const data: Record<string, any> = {};
-    formData.forEach((value, key) => {
-      data[key] = value;
-    });
+      const formData = new FormData(event.currentTarget);
+      const data = Object.fromEntries(formData.entries());
 
-    await onSubmit(data);
-  };
+      try {
+        await onSubmit(data);
+      } catch (error) {
+        console.error('Form submission error:', error);
+      }
+    };
 
-  return (
-    <form
-      onSubmit={handleSubmit}
-      className={`needs-validation ${className}`}
-      noValidate
-      {...props}
-    >
-      {error && (
-        <div className="alert alert-danger" role="alert">
-          {error}
+    return (
+      <form
+        ref={ref}
+        className={cn('space-y-6', className)}
+        onSubmit={handleSubmit}
+        {...props}
+      >
+        <div className="space-y-4">
+          {error && (
+            <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="rounded-md bg-success/15 p-3 text-sm text-success">
+              {success}
+            </div>
+          )}
+          {children}
         </div>
-      )}
-      
-      {successMessage && (
-        <div className="alert alert-success" role="alert">
-          {successMessage}
-        </div>
-      )}
+      </form>
+    );
+  }
+);
 
-      {children}
-    </form>
-  );
-}
-
-export function FormField({
-  name,
-  label,
-  error,
-  children,
-  isRequired = false,
-  helperText,
-}: FormFieldProps) {
-  return (
-    <div className="mb-3">
-      {label && (
-        <label htmlFor={name} className="form-label">
-          {label}
-          {isRequired && <span className="text-danger ms-1">*</span>}
-        </label>
-      )}
-      
-      {children}
-      
-      {error && <div className="invalid-feedback d-block">{error}</div>}
-      {helperText && <div className="form-text">{helperText}</div>}
-    </div>
-  );
-}
-
-export function FormGroup({ children, className = '' }: FormGroupProps) {
-  return (
-    <div className={`row g-3 align-items-center ${className}`}>
-      {children}
-    </div>
-  );
-} 
+Form.displayName = 'Form'; 

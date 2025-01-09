@@ -4,7 +4,7 @@ export default function ExamplesPage() {
   const examples = [
     {
       title: "Basic Example",
-      description: "A simple example showing basic Bootstrap components and styling.",
+      description: "A simple example showing basic components and styling with Bootstrap 5.",
       ctaText: "Learn More",
       ctaHref: "#"
     },

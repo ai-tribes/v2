@@ -1,38 +1,90 @@
+import { forwardRef } from 'react';
 import Link from 'next/link';
 import { HeaderProps } from './Header.types';
+import { cn } from '@/lib/utils';
 
-export function Header({ brandName = 'AI Tribes', navItems = [] }: HeaderProps) {
-  return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light">
-      <div className="container">
-        <Link href="/" className="navbar-brand">
-          {brandName}
-        </Link>
-        
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
-        
-        <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav ms-auto">
-            {navItems.map((item, index) => (
-              <li key={index} className="nav-item">
-                <Link href={item.href} className="nav-link">
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+export const Header = forwardRef<HTMLElement, HeaderProps>(
+  (
+    {
+      logo,
+      navigation = [],
+      actions,
+      isSticky = true,
+      showBorder = true,
+      className,
+      mobileMenuTrigger,
+      isMobileMenuOpen = false,
+      onMobileMenuToggle,
+    },
+    ref
+  ) => {
+    return (
+      <header
+        ref={ref}
+        className={cn(
+          'navbar navbar-expand-md bg-white',
+          isSticky && 'sticky-top',
+          showBorder && 'border-bottom',
+          className
+        )}
+      >
+        <div className="container">
+          {/* Logo Section */}
+          <div className="navbar-brand">
+            {logo}
+          </div>
+
+          {/* Mobile Menu Button */}
+          {mobileMenuTrigger && (
+            <button
+              type="button"
+              className="navbar-toggler"
+              onClick={() => onMobileMenuToggle?.(!isMobileMenuOpen)}
+              aria-expanded={isMobileMenuOpen}
+              aria-label="Toggle navigation"
+            >
+              {mobileMenuTrigger}
+            </button>
+          )}
+
+          {/* Navigation and Actions */}
+          <div className={`collapse navbar-collapse ${isMobileMenuOpen ? 'show' : ''}`}>
+            {/* Desktop Navigation */}
+            <nav className="navbar-nav me-auto mb-2 mb-md-0">
+              {navigation.map(({ label, href, isExternal }) => (
+                isExternal ? (
+                  <a
+                    key={href}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="nav-link"
+                  >
+                    {label}
+                  </a>
+                ) : (
+                  <Link
+                    key={href}
+                    href={href}
+                    className="nav-link"
+                  >
+                    {label}
+                  </Link>
+                )
+              ))}
+            </nav>
+
+            {/* Actions Section */}
+            {actions && (
+              <div className="d-flex">
+                {actions}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </nav>
-  );
-} 
+      </header>
+    );
+  }
+);
+
+Header.displayName = 'Header'; 
