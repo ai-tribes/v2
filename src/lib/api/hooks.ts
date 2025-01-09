@@ -8,15 +8,19 @@ interface UseApiState<T> {
   isLoading: boolean;
 }
 
-interface UseApiResponse<T> extends UseApiState<T> {
-  execute: (...args: any[]) => Promise<void>;
+interface UseApiResponse<T, Args extends unknown[] = unknown[]> extends UseApiState<T> {
+  execute: (...args: Args) => Promise<void>;
   reset: () => void;
 }
 
-export function useApi<T = any>(
-  apiFunction: (...args: any[]) => Promise<ApiResponse<T>>,
-  options: { immediate?: boolean; onSuccess?: (data: T) => void; onError?: (error: ApiError) => void } = {}
-): UseApiResponse<T> {
+export function useApi<T, Args extends unknown[] = unknown[]>(
+  apiFunction: (...args: Args) => Promise<ApiResponse<T>>,
+  options: { 
+    immediate?: boolean; 
+    onSuccess?: (data: T) => void; 
+    onError?: (error: ApiError) => void 
+  } = {}
+): UseApiResponse<T, Args> {
   const [state, setState] = useState<UseApiState<T>>({
     data: null,
     error: null,
@@ -24,7 +28,7 @@ export function useApi<T = any>(
   });
 
   const execute = useCallback(
-    async (...args: any[]) => {
+    async (...args: Args) => {
       setState(prev => ({ ...prev, isLoading: true }));
 
       try {
@@ -33,14 +37,14 @@ export function useApi<T = any>(
         if (response.error) {
           setState({ data: null, error: response.error, isLoading: false });
           options.onError?.(response.error);
-        } else {
-          setState({ data: response.data!, error: null, isLoading: false });
-          options.onSuccess?.(response.data!);
+        } else if (response.data) {
+          setState({ data: response.data, error: null, isLoading: false });
+          options.onSuccess?.(response.data);
         }
-      } catch (error: any) {
+      } catch (error) {
         const apiError: ApiError = {
           code: 'UNKNOWN_ERROR',
-          message: error.message || 'An unknown error occurred',
+          message: error instanceof Error ? error.message : 'An unknown error occurred',
         };
         setState({ data: null, error: apiError, isLoading: false });
         options.onError?.(apiError);
@@ -60,7 +64,7 @@ export function useApi<T = any>(
   };
 }
 
-export function useQuery<T = any>(
+export function useQuery<T>(
   endpoint: string,
   options: {
     immediate?: boolean;
@@ -74,10 +78,10 @@ export function useQuery<T = any>(
     [endpoint, options.config]
   );
 
-  return useApi<T>(apiCall, options);
+  return useApi<T, []>(apiCall, options);
 }
 
-export function useMutation<T = any>(
+export function useMutation<T, D = unknown>(
   method: 'post' | 'put' | 'patch' | 'delete',
   endpoint: string,
   options: {
@@ -87,9 +91,14 @@ export function useMutation<T = any>(
   } = {}
 ) {
   const apiCall = useCallback(
-    (data?: any) => api[method]<T>(endpoint, data, options.config),
+    (data?: D) => {
+      if (method === 'delete') {
+        return api.delete<T>(endpoint, options.config);
+      }
+      return api[method]<T, D>(endpoint, data, options.config);
+    },
     [method, endpoint, options.config]
   );
 
-  return useApi<T>(apiCall, options);
+  return useApi<T, [D?]>(apiCall, options);
 } 

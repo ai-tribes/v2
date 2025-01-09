@@ -41,7 +41,17 @@
   - [x] Add bottom content support
   - [x] Add comprehensive tests
 
+### Type Safety Improvements
+- [x] Update design documents with routing type safety requirements
+- [x] Create routing type utilities in src/lib/routing/types.ts
+- [x] Update Footer component types with proper route types
+- [x] Update layout.tsx with proper route handling
+- [ ] Update Header component with proper route types
+- [ ] Update MainLayout component with proper route types
+- [ ] Add tests for route type validation
+
 ## 🚧 In Progress
+- [ ] Implementing route type safety across remaining components
 - [ ] Implementing MainLayout component
 - [ ] Setting up authentication flow
 - [ ] Implementing blockchain integration
@@ -50,15 +60,18 @@
 1. FormField component has TypeScript errors with prop passing that need to be resolved
 2. Some test files might need additional coverage for edge cases
 3. Need to verify Jest configuration works with Next.js 13 app router
+4. Header and MainLayout components still need route type updates
 
 ## 📝 Todo List
 
 ### High Priority
 1. Fix FormField TypeScript errors
-2. Complete MainLayout component implementation
-3. Add more comprehensive test coverage
-4. Set up proper error handling system
-5. Implement loading states and spinners
+2. Complete route type safety implementation for remaining components
+3. Add tests for route type utilities and components
+4. Complete MainLayout component implementation
+5. Add more comprehensive test coverage
+6. Set up proper error handling system
+7. Implement loading states and spinners
 
 ### Core Features
 1. Implement authentication system

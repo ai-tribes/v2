@@ -6,9 +6,9 @@ export interface StorageConfig {
   arweaveGateway?: string;
 }
 
-export interface StorageItem {
+export interface StorageItem<T = unknown> {
   key: string;
-  value: any;
+  value: T;
   timestamp: number;
   encrypted?: boolean;
 }
@@ -29,7 +29,7 @@ export interface UploadOptions {
   contentType?: string;
   encryption?: boolean;
   permanent?: boolean;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface UploadResult {
@@ -48,8 +48,8 @@ export interface StorageProvider {
   encryption: boolean;
 
   // Local storage methods
-  set?(key: string, value: any): Promise<void>;
-  get?<T = any>(key: string): Promise<T | null>;
+  set?<T>(key: string, value: T): Promise<void>;
+  get?<T>(key: string): Promise<T | null>;
   remove?(key: string): Promise<void>;
   clear?(): Promise<void>;
 
@@ -70,7 +70,7 @@ export type StorageType = typeof STORAGE_TYPES[keyof typeof STORAGE_TYPES];
 export interface StorageError {
   code: string;
   message: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
 }
 
 export interface EncryptionResult {

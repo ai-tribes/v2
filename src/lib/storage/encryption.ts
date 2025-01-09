@@ -1,5 +1,10 @@
 import { EncryptionResult, DecryptionInput, StorageError } from './types';
 
+interface CryptoError extends Error {
+  code?: string;
+  name: string;
+}
+
 export class EncryptionService {
   private static readonly ALGORITHM = 'AES-GCM';
   private static readonly KEY_LENGTH = 256;
@@ -30,8 +35,9 @@ export class EncryptionService {
           ['encrypt', 'decrypt']
         );
       }
-    } catch (error: any) {
-      throw this.createError('ENCRYPTION_INIT_ERROR', error.message);
+    } catch (error) {
+      const err = error as CryptoError;
+      throw this.createError('ENCRYPTION_INIT_ERROR', err.message || 'Failed to initialize encryption');
     }
   }
 
@@ -60,8 +66,9 @@ export class EncryptionService {
         data: encryptedBase64,
         iv: ivBase64,
       };
-    } catch (error: any) {
-      throw this.createError('ENCRYPTION_ERROR', error.message);
+    } catch (error) {
+      const err = error as CryptoError;
+      throw this.createError('ENCRYPTION_ERROR', err.message || 'Failed to encrypt data');
     }
   }
 
@@ -84,8 +91,9 @@ export class EncryptionService {
 
       // Convert back to string
       return new TextDecoder().decode(decryptedBuffer);
-    } catch (error: any) {
-      throw this.createError('DECRYPTION_ERROR', error.message);
+    } catch (error) {
+      const err = error as CryptoError;
+      throw this.createError('DECRYPTION_ERROR', err.message || 'Failed to decrypt data');
     }
   }
 

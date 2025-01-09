@@ -62,7 +62,7 @@ export type ChainId = typeof SUPPORTED_CHAINS[keyof typeof SUPPORTED_CHAINS];
 export interface WalletError {
   code: string;
   message: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
 }
 
 export type WalletProvider = 'metamask' | 'walletconnect' | 'coinbase'; 

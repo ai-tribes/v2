@@ -1,13 +1,5 @@
 import { ReactNode } from 'react';
-
-export interface FooterLinkGroup {
-  title: string;
-  links: {
-    label: string;
-    href: string;
-    isExternal?: boolean;
-  }[];
-}
+import { NavigationGroup, SocialLink } from '@/lib/routing/types';
 
 export interface FooterProps {
   /**
@@ -18,7 +10,7 @@ export interface FooterProps {
   /**
    * Groups of links to display in columns
    */
-  linkGroups?: FooterLinkGroup[];
+  linkGroups?: NavigationGroup[];
 
   /**
    * Copyright text to display
@@ -28,11 +20,7 @@ export interface FooterProps {
   /**
    * Social media links
    */
-  socialLinks?: {
-    icon: ReactNode;
-    href: string;
-    label: string;
-  }[];
+  socialLinks?: SocialLink[];
 
   /**
    * Additional content to display above the copyright

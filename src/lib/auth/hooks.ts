@@ -2,18 +2,28 @@ import { useCallback } from 'react';
 import { useAuth } from './context';
 import { LoginCredentials, RegisterCredentials } from './types';
 
+interface AuthResult {
+  success: boolean;
+  error?: string;
+}
+
+interface AuthError extends Error {
+  message: string;
+}
+
 export function useLogin() {
   const { login, isLoading, error } = useAuth();
 
   const handleLogin = useCallback(
-    async (credentials: LoginCredentials) => {
+    async (credentials: LoginCredentials): Promise<AuthResult> => {
       try {
         await login(credentials);
         return { success: true };
-      } catch (error: any) {
+      } catch (error) {
+        const authError = error as AuthError;
         return {
           success: false,
-          error: error.message || 'Failed to login',
+          error: authError.message || 'Failed to login',
         };
       }
     },
@@ -31,14 +41,15 @@ export function useRegister() {
   const { register, isLoading, error } = useAuth();
 
   const handleRegister = useCallback(
-    async (credentials: RegisterCredentials) => {
+    async (credentials: RegisterCredentials): Promise<AuthResult> => {
       try {
         await register(credentials);
         return { success: true };
-      } catch (error: any) {
+      } catch (error) {
+        const authError = error as AuthError;
         return {
           success: false,
-          error: error.message || 'Failed to register',
+          error: authError.message || 'Failed to register',
         };
       }
     },
@@ -55,14 +66,15 @@ export function useRegister() {
 export function useLogout() {
   const { logout, isLoading, error } = useAuth();
 
-  const handleLogout = useCallback(async () => {
+  const handleLogout = useCallback(async (): Promise<AuthResult> => {
     try {
       await logout();
       return { success: true };
-    } catch (error: any) {
+    } catch (error) {
+      const authError = error as AuthError;
       return {
         success: false,
-        error: error.message || 'Failed to logout',
+        error: authError.message || 'Failed to logout',
       };
     }
   }, [logout]);
@@ -77,14 +89,15 @@ export function useLogout() {
 export function useUser() {
   const { user, isLoading, error, refreshUser } = useAuth();
 
-  const handleRefresh = useCallback(async () => {
+  const handleRefresh = useCallback(async (): Promise<AuthResult> => {
     try {
       await refreshUser();
       return { success: true };
-    } catch (error: any) {
+    } catch (error) {
+      const authError = error as AuthError;
       return {
         success: false,
-        error: error.message || 'Failed to refresh user',
+        error: authError.message || 'Failed to refresh user',
       };
     }
   }, [refreshUser]);

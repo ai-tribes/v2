@@ -1,7 +1,21 @@
 import { useCallback } from 'react';
 import { useBlockchain } from './context';
-import { TransactionRequest, WalletProvider } from './types';
+import { TransactionRequest, WalletProvider, WalletError } from './types';
 import { formatBlockExplorerLink } from './chains';
+
+interface BlockchainResult {
+  success: boolean;
+  error?: string;
+}
+
+interface TransactionResult extends BlockchainResult {
+  hash?: string;
+  explorerLink?: string;
+}
+
+interface SignMessageResult extends BlockchainResult {
+  signature?: string;
+}
 
 export function useWallet() {
   const {
@@ -16,28 +30,30 @@ export function useWallet() {
   } = useBlockchain();
 
   const handleConnect = useCallback(
-    async (provider?: WalletProvider) => {
+    async (provider?: WalletProvider): Promise<BlockchainResult> => {
       try {
         await connect(provider);
         return { success: true };
-      } catch (error: any) {
+      } catch (error) {
+        const err = error as WalletError;
         return {
           success: false,
-          error: error.message || 'Failed to connect wallet',
+          error: err.message || 'Failed to connect wallet',
         };
       }
     },
     [connect]
   );
 
-  const handleDisconnect = useCallback(async () => {
+  const handleDisconnect = useCallback(async (): Promise<BlockchainResult> => {
     try {
       await disconnect();
       return { success: true };
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as WalletError;
       return {
         success: false,
-        error: error.message || 'Failed to disconnect wallet',
+        error: err.message || 'Failed to disconnect wallet',
       };
     }
   }, [disconnect]);
@@ -58,14 +74,15 @@ export function useNetwork() {
   const { chainId, error, switchChain } = useBlockchain();
 
   const handleSwitchChain = useCallback(
-    async (newChainId: number) => {
+    async (newChainId: number): Promise<BlockchainResult> => {
       try {
         await switchChain(newChainId);
         return { success: true };
-      } catch (error: any) {
+      } catch (error) {
+        const err = error as WalletError;
         return {
           success: false,
-          error: error.message || 'Failed to switch chain',
+          error: err.message || 'Failed to switch chain',
         };
       }
     },
@@ -83,19 +100,20 @@ export function useTransaction() {
   const { chainId, error, sendTransaction } = useBlockchain();
 
   const handleSendTransaction = useCallback(
-    async (request: TransactionRequest) => {
+    async (request: TransactionRequest): Promise<TransactionResult> => {
       try {
         const txHash = await sendTransaction(request);
-        const explorerLink = formatBlockExplorerLink(chainId!, txHash);
+        const explorerLink = chainId ? formatBlockExplorerLink(chainId, txHash) : undefined;
         return {
           success: true,
           hash: txHash,
           explorerLink,
         };
-      } catch (error: any) {
+      } catch (error) {
+        const err = error as WalletError;
         return {
           success: false,
-          error: error.message || 'Failed to send transaction',
+          error: err.message || 'Failed to send transaction',
         };
       }
     },
@@ -112,17 +130,18 @@ export function useSignMessage() {
   const { error, signMessage } = useBlockchain();
 
   const handleSignMessage = useCallback(
-    async (message: string) => {
+    async (message: string): Promise<SignMessageResult> => {
       try {
         const signature = await signMessage(message);
         return {
           success: true,
           signature,
         };
-      } catch (error: any) {
+      } catch (error) {
+        const err = error as WalletError;
         return {
           success: false,
-          error: error.message || 'Failed to sign message',
+          error: err.message || 'Failed to sign message',
         };
       }
     },

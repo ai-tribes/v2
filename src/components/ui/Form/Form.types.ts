@@ -1,6 +1,6 @@
-import { FormHTMLAttributes, ReactElement, ReactNode } from 'react';
+import { FormEvent, FormHTMLAttributes, ReactElement, ReactNode } from 'react';
 
-export interface FormProps extends FormHTMLAttributes<HTMLFormElement> {
+export interface FormProps<TFormData = Record<string, unknown>> extends Omit<FormHTMLAttributes<HTMLFormElement>, 'onSubmit'> {
   /**
    * Whether the form is in a loading state
    * @default false
@@ -26,7 +26,7 @@ export interface FormProps extends FormHTMLAttributes<HTMLFormElement> {
   /**
    * Form submission handler
    */
-  onSubmit: (data: any) => void | Promise<void>;
+  onSubmit: (data: TFormData, event: FormEvent<HTMLFormElement>) => void | Promise<void>;
 }
 
 export interface FieldProps {

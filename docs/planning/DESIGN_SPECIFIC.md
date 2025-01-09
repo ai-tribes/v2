@@ -12,13 +12,14 @@ AI Tribes is a platform for creating and managing AI-powered communities with sp
 
 ### Current State
 Our codebase currently has:
-- Scattered components in a flat structure
-- Mixed routing paradigms (Pages + App Router)
-- Inconsistent feature implementations
-- Poor separation of concerns
+- Organized component structure with proper routing
+- Next.js App Router implementation
+- Type-safe routing implementation
+- Bootstrap 5 styling framework
+- Strong separation of concerns
 
 ### Target State
-We're evolving towards:
+We're continuing to evolve towards:
 - Feature-based architecture
 - Clear separation of concerns
 - Type-safe implementations
@@ -100,11 +101,14 @@ payments/
 ### 1. Shared Components
 ```
 src/components/
-├── ui/                # Basic UI components
+├── ui/                # Basic UI components with Bootstrap 5
 │   ├── Button/
 │   ├── Modal/
 │   └── Form/
-├── layout/            # Layout components
+├── layout/            # Layout components with type-safe routing
+│   ├── Header/
+│   ├── Footer/
+│   └── MainLayout/
 └── shared/            # Shared feature components
 ```
 
@@ -114,7 +118,10 @@ src/lib/
 ├── api/              # API utilities
 ├── auth/             # Auth utilities
 ├── blockchain/       # Blockchain utilities
-└── storage/          # Storage utilities
+├── storage/          # Storage utilities
+└── routing/          # Type-safe routing utilities
+    ├── types.ts      # Route type definitions
+    └── utils.ts      # Route helper functions
 ```
 
 ### 3. App Router Structure
@@ -134,23 +141,48 @@ src/app/
 - Type-safe API calls
 - Proper error handling
 
-### 2. Testing Strategy
+### 2. Routing Type Safety
+- Implemented Next.js Route types for all internal links
+- Enforced URL object usage for external links
+- Type-safe route parameters using `src/lib/routing/types.ts`
+- Helper utilities for route type conversion (`createInternalRoute`, `createExternalRoute`)
+- Route type validation in layout components (Header, Footer, MainLayout)
+- Navigation link types with proper route type checking
+- Social link types extending navigation links with icon support
+
+### 3. Testing Strategy
 - Jest for unit testing
 - React Testing Library for components
 - Cypress for E2E testing
 - Integration tests for features
 
-### 3. State Management
+### 4. State Management
 - React Context for UI state
 - Server state with React Query
 - Proper data caching
 - Optimistic updates
 
-### 4. Performance Optimization
+### 5. Performance Optimization
 - Route-based code splitting
 - Asset optimization
 - Proper caching strategy
 - Lazy loading
+
+### 2. Routing Type Safety
+- Implemented Next.js Route types for all internal links
+- Enforced URL object usage for external links
+- Type-safe route parameters using `src/lib/routing/types.ts`
+- Helper utilities for route type conversion (`createInternalRoute`, `createExternalRoute`)
+- Route type validation in layout components (Header, Footer, MainLayout)
+- Navigation link types with proper route type checking
+- Social link types extending navigation links with icon support
+
+### 3. UI Framework
+- Bootstrap 5 as primary styling framework
+- Custom utility classes for enhanced styling
+- Responsive design patterns
+- Consistent component styling
+- Integration with Next.js components
 
 ## Implementation Phases
 

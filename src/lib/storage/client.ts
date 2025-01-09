@@ -4,7 +4,7 @@ import { ipfsStorageProvider } from './providers/ipfs';
 
 class StorageClient {
   private config: StorageConfig;
-  private providers: Map<StorageType, any>;
+  private providers: Map<StorageType, StorageProvider>;
 
   constructor(config: StorageConfig = {}) {
     this.config = config;
@@ -23,39 +23,44 @@ class StorageClient {
     return provider;
   }
 
-  public async store(
+  public async store<T>(
     key: string,
-    data: any,
+    data: T,
     type: StorageType = 'local'
   ): Promise<void> {
     try {
       const provider = this.getProvider(type);
 
-      if (type === 'local') {
+      if (type === 'local' && provider.set) {
         await provider.set(key, data);
+      } else if (provider.upload) {
+        await provider.upload(data as unknown as string | Blob | File);
       } else {
-        await provider.upload(data);
+        throw this.createError('OPERATION_NOT_SUPPORTED', 'Store operation not supported for this provider');
       }
-    } catch (error: any) {
-      throw this.createError('STORE_ERROR', error.message);
+    } catch (error) {
+      const err = error as Error;
+      throw this.createError('STORE_ERROR', err.message);
     }
   }
 
-  public async retrieve<T = any>(
+  public async retrieve<T>(
     key: string,
     type: StorageType = 'local'
   ): Promise<T | null> {
     try {
       const provider = this.getProvider(type);
 
-      if (type === 'local') {
+      if (type === 'local' && provider.get) {
         return await provider.get<T>(key);
-      } else {
+      } else if (provider.download) {
         const data = await provider.download(key);
-        return data as T;
+        return data as unknown as T;
       }
-    } catch (error: any) {
-      throw this.createError('RETRIEVE_ERROR', error.message);
+      throw this.createError('OPERATION_NOT_SUPPORTED', 'Retrieve operation not supported for this provider');
+    } catch (error) {
+      const err = error as Error;
+      throw this.createError('RETRIEVE_ERROR', err.message);
     }
   }
 
@@ -66,12 +71,16 @@ class StorageClient {
   ): Promise<UploadResult> {
     try {
       const provider = this.getProvider(type);
+      if (!provider.upload) {
+        throw this.createError('OPERATION_NOT_SUPPORTED', 'Upload operation not supported for this provider');
+      }
       return await provider.upload(data, {
         ...options,
         encryption: options.encryption ?? this.config.encryption,
       });
-    } catch (error: any) {
-      throw this.createError('UPLOAD_ERROR', error.message);
+    } catch (error) {
+      const err = error as Error;
+      throw this.createError('UPLOAD_ERROR', err.message);
     }
   }
 
@@ -81,9 +90,13 @@ class StorageClient {
   ): Promise<Blob> {
     try {
       const provider = this.getProvider(type);
+      if (!provider.download) {
+        throw this.createError('OPERATION_NOT_SUPPORTED', 'Download operation not supported for this provider');
+      }
       return await provider.download(hash);
-    } catch (error: any) {
-      throw this.createError('DOWNLOAD_ERROR', error.message);
+    } catch (error) {
+      const err = error as Error;
+      throw this.createError('DOWNLOAD_ERROR', err.message);
     }
   }
 
@@ -93,26 +106,28 @@ class StorageClient {
   ): Promise<void> {
     try {
       const provider = this.getProvider(type);
-      if (type === 'local') {
+      if (type === 'local' && provider.remove) {
         await provider.remove(key);
       } else {
         throw this.createError('OPERATION_NOT_SUPPORTED', 'Remove operation not supported for this provider');
       }
-    } catch (error: any) {
-      throw this.createError('REMOVE_ERROR', error.message);
+    } catch (error) {
+      const err = error as Error;
+      throw this.createError('REMOVE_ERROR', err.message);
     }
   }
 
   public async clear(type: StorageType = 'local'): Promise<void> {
     try {
       const provider = this.getProvider(type);
-      if (type === 'local') {
+      if (type === 'local' && provider.clear) {
         await provider.clear();
       } else {
         throw this.createError('OPERATION_NOT_SUPPORTED', 'Clear operation not supported for this provider');
       }
-    } catch (error: any) {
-      throw this.createError('CLEAR_ERROR', error.message);
+    } catch (error) {
+      const err = error as Error;
+      throw this.createError('CLEAR_ERROR', err.message);
     }
   }
 

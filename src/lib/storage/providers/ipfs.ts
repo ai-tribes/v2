@@ -1,6 +1,22 @@
 import { StorageConfig, StorageError, StorageMetadata, UploadOptions, UploadResult, StorageProvider, StorageType } from '../types';
 import { encryptionService } from '../encryption';
 
+interface IPFSError extends Error {
+  code?: string;
+  name: string;
+}
+
+interface IPFSUploadResponse {
+  Hash: string;
+  Name: string;
+  Size: string;
+}
+
+interface EncryptedContent {
+  data: string;
+  iv: string;
+}
+
 export class IPFSStorageProvider implements StorageProvider {
   public readonly type: StorageType = 'ipfs';
   public readonly name = 'IPFS Storage';
@@ -32,12 +48,13 @@ export class IPFSStorageProvider implements StorageProvider {
     try {
       let content: Blob;
       let contentType = options.contentType || 'application/octet-stream';
+      let encryptedContent: EncryptedContent | undefined;
 
       if (typeof data === 'string') {
         // If encryption is enabled, encrypt the string data
         if (this.config.encryption) {
-          const encrypted = await encryptionService.encrypt(data);
-          content = new Blob([JSON.stringify(encrypted)], { type: 'application/json' });
+          encryptedContent = await encryptionService.encrypt(data);
+          content = new Blob([JSON.stringify(encryptedContent)], { type: 'application/json' });
           contentType = 'application/json+encrypted';
         } else {
           content = new Blob([data], { type: contentType });
@@ -60,7 +77,7 @@ export class IPFSStorageProvider implements StorageProvider {
         throw new Error('Failed to upload to IPFS');
       }
 
-      const result = await response.json();
+      const result = (await response.json()) as IPFSUploadResponse;
       const hash = result.Hash;
 
       const metadata: StorageMetadata = {
@@ -69,9 +86,9 @@ export class IPFSStorageProvider implements StorageProvider {
         created: Date.now(),
         modified: Date.now(),
         hash,
-        encryption: this.config.encryption ? {
+        encryption: this.config.encryption && encryptedContent ? {
           algorithm: 'AES-GCM',
-          iv: '', // Set if encrypted
+          iv: encryptedContent.iv,
         } : undefined,
       };
 
@@ -81,8 +98,9 @@ export class IPFSStorageProvider implements StorageProvider {
         size: content.size,
         metadata,
       };
-    } catch (error: any) {
-      throw this.createError('UPLOAD_ERROR', error.message);
+    } catch (error) {
+      const err = error as IPFSError;
+      throw this.createError('UPLOAD_ERROR', err.message || 'Failed to upload to IPFS');
     }
   }
 
@@ -99,14 +117,15 @@ export class IPFSStorageProvider implements StorageProvider {
       // If the content is encrypted, decrypt it
       if (this.config.encryption) {
         const text = await data.text();
-        const encrypted = JSON.parse(text);
+        const encrypted = JSON.parse(text) as EncryptedContent;
         const decrypted = await encryptionService.decrypt(encrypted);
         return new Blob([decrypted], { type: 'text/plain' });
       }
 
       return data;
-    } catch (error: any) {
-      throw this.createError('DOWNLOAD_ERROR', error.message);
+    } catch (error) {
+      const err = error as IPFSError;
+      throw this.createError('DOWNLOAD_ERROR', err.message || 'Failed to download from IPFS');
     }
   }
 
@@ -131,8 +150,9 @@ export class IPFSStorageProvider implements StorageProvider {
           iv: '', // Set if encrypted
         } : undefined,
       };
-    } catch (error: any) {
-      throw this.createError('METADATA_ERROR', error.message);
+    } catch (error) {
+      const err = error as IPFSError;
+      throw this.createError('METADATA_ERROR', err.message || 'Failed to get metadata from IPFS');
     }
   }
 

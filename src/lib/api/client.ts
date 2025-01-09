@@ -1,4 +1,4 @@
-import { ApiRequestConfig, ApiResponse, HttpMethod } from './types';
+import { ApiError, ApiRequestConfig, ApiResponse, HttpMethod } from './types';
 
 class ApiClient {
   private config: ApiRequestConfig;
@@ -14,10 +14,10 @@ class ApiClient {
     };
   }
 
-  private async request<T>(
+  private async request<T, D = unknown>(
     method: HttpMethod,
     endpoint: string,
-    data?: any,
+    data?: D,
     config: Partial<ApiRequestConfig> = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.config.baseURL}${endpoint}`;
@@ -38,16 +38,17 @@ class ApiClient {
           code: response.status.toString(),
           message: responseData.message || 'An error occurred',
           details: responseData.details,
-        };
+        } as ApiError;
       }
 
       return { data: responseData };
-    } catch (error: any) {
+    } catch (error) {
+      const apiError = error as ApiError;
       return {
         error: {
-          code: error.code || 'UNKNOWN_ERROR',
-          message: error.message || 'An unknown error occurred',
-          details: error.details,
+          code: apiError.code || 'UNKNOWN_ERROR',
+          message: apiError.message || 'An unknown error occurred',
+          details: apiError.details,
         },
       };
     }
@@ -57,20 +58,20 @@ class ApiClient {
     return this.request<T>('GET', endpoint, undefined, config);
   }
 
-  public async post<T>(endpoint: string, data?: any, config?: Partial<ApiRequestConfig>): Promise<ApiResponse<T>> {
-    return this.request<T>('POST', endpoint, data, config);
+  public async post<T, D = unknown>(endpoint: string, data?: D, config?: Partial<ApiRequestConfig>): Promise<ApiResponse<T>> {
+    return this.request<T, D>('POST', endpoint, data, config);
   }
 
-  public async put<T>(endpoint: string, data?: any, config?: Partial<ApiRequestConfig>): Promise<ApiResponse<T>> {
-    return this.request<T>('PUT', endpoint, data, config);
+  public async put<T, D = unknown>(endpoint: string, data?: D, config?: Partial<ApiRequestConfig>): Promise<ApiResponse<T>> {
+    return this.request<T, D>('PUT', endpoint, data, config);
   }
 
   public async delete<T>(endpoint: string, config?: Partial<ApiRequestConfig>): Promise<ApiResponse<T>> {
     return this.request<T>('DELETE', endpoint, undefined, config);
   }
 
-  public async patch<T>(endpoint: string, data?: any, config?: Partial<ApiRequestConfig>): Promise<ApiResponse<T>> {
-    return this.request<T>('PATCH', endpoint, data, config);
+  public async patch<T, D = unknown>(endpoint: string, data?: D, config?: Partial<ApiRequestConfig>): Promise<ApiResponse<T>> {
+    return this.request<T, D>('PATCH', endpoint, data, config);
   }
 
   public setHeader(key: string, value: string): void {

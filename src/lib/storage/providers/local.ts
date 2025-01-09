@@ -1,6 +1,16 @@
 import { StorageConfig, StorageItem, StorageError, StorageMetadata, StorageProvider, StorageType } from '../types';
 import { encryptionService } from '../encryption';
 
+interface EncryptedValue {
+  data: string;
+  iv: string;
+}
+
+interface LocalStorageError extends Error {
+  code?: string;
+  name: string;
+}
+
 export class LocalStorageProvider implements StorageProvider {
   public readonly type: StorageType = 'local';
   public readonly name = 'Local Storage';
@@ -23,9 +33,9 @@ export class LocalStorageProvider implements StorageProvider {
     }
   }
 
-  public async set(key: string, value: any): Promise<void> {
+  public async set<T>(key: string, value: T): Promise<void> {
     try {
-      const item: StorageItem = {
+      const item: StorageItem<T> = {
         key,
         value,
         timestamp: Date.now(),
@@ -35,18 +45,19 @@ export class LocalStorageProvider implements StorageProvider {
       if (this.config.encryption) {
         const stringValue = JSON.stringify(value);
         const encrypted = await encryptionService.encrypt(stringValue);
-        item.value = encrypted.data;
+        item.value = encrypted as unknown as T;
         item.encrypted = true;
       }
 
       const fullKey = this.getFullKey(key);
       localStorage.setItem(fullKey, JSON.stringify(item));
-    } catch (error: any) {
-      throw this.createError('SET_ERROR', error.message);
+    } catch (error) {
+      const err = error as LocalStorageError;
+      throw this.createError('SET_ERROR', err.message || 'Failed to set item');
     }
   }
 
-  public async get<T = any>(key: string): Promise<T | null> {
+  public async get<T>(key: string): Promise<T | null> {
     try {
       const fullKey = this.getFullKey(key);
       const rawItem = localStorage.getItem(fullKey);
@@ -55,19 +66,21 @@ export class LocalStorageProvider implements StorageProvider {
         return null;
       }
 
-      const item: StorageItem = JSON.parse(rawItem);
+      const item: StorageItem<T | EncryptedValue> = JSON.parse(rawItem);
 
       if (item.encrypted && this.config.encryption) {
+        const encryptedValue = item.value as EncryptedValue;
         const decrypted = await encryptionService.decrypt({
-          data: item.value,
-          iv: item.value.iv,
+          data: encryptedValue.data,
+          iv: encryptedValue.iv,
         });
-        return JSON.parse(decrypted);
+        return JSON.parse(decrypted) as T;
       }
 
-      return item.value;
-    } catch (error: any) {
-      throw this.createError('GET_ERROR', error.message);
+      return item.value as T;
+    } catch (error) {
+      const err = error as LocalStorageError;
+      throw this.createError('GET_ERROR', err.message || 'Failed to get item');
     }
   }
 
@@ -75,8 +88,9 @@ export class LocalStorageProvider implements StorageProvider {
     try {
       const fullKey = this.getFullKey(key);
       localStorage.removeItem(fullKey);
-    } catch (error: any) {
-      throw this.createError('REMOVE_ERROR', error.message);
+    } catch (error) {
+      const err = error as LocalStorageError;
+      throw this.createError('REMOVE_ERROR', err.message || 'Failed to remove item');
     }
   }
 
@@ -84,8 +98,9 @@ export class LocalStorageProvider implements StorageProvider {
     try {
       const keys = this.getAllKeys();
       keys.forEach(key => localStorage.removeItem(key));
-    } catch (error: any) {
-      throw this.createError('CLEAR_ERROR', error.message);
+    } catch (error) {
+      const err = error as LocalStorageError;
+      throw this.createError('CLEAR_ERROR', err.message || 'Failed to clear storage');
     }
   }
 
@@ -98,7 +113,7 @@ export class LocalStorageProvider implements StorageProvider {
         throw this.createError('NOT_FOUND', `Item with key ${key} not found`);
       }
 
-      const item: StorageItem = JSON.parse(rawItem);
+      const item: StorageItem<unknown> = JSON.parse(rawItem);
       const size = new Blob([JSON.stringify(item.value)]).size;
 
       return {
@@ -108,11 +123,12 @@ export class LocalStorageProvider implements StorageProvider {
         modified: item.timestamp,
         encryption: item.encrypted ? {
           algorithm: 'AES-GCM',
-          iv: item.value.iv,
+          iv: (item.value as EncryptedValue).iv,
         } : undefined,
       };
-    } catch (error: any) {
-      throw this.createError('METADATA_ERROR', error.message);
+    } catch (error) {
+      const err = error as LocalStorageError;
+      throw this.createError('METADATA_ERROR', err.message || 'Failed to get metadata');
     }
   }
 

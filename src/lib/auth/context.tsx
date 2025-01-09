@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { AuthState, LoginCredentials, RegisterCredentials, User } from './types';
+import { AuthState, LoginCredentials, RegisterCredentials } from './types';
 import { authClient } from './client';
 
 interface AuthContextType extends AuthState {
@@ -15,6 +15,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
   children: ReactNode;
+}
+
+interface AuthError extends Error {
+  message: string;
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
@@ -44,7 +48,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             error: null,
           });
         }
-      } catch (error) {
+      } catch {
         setState({
           user: null,
           isLoading: false,
@@ -67,14 +71,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
         isAuthenticated: true,
         error: null,
       });
-    } catch (error: any) {
+    } catch (error) {
+      const authError = error as AuthError;
       setState({
         user: null,
         isLoading: false,
         isAuthenticated: false,
-        error: error.message || 'Failed to login',
+        error: authError.message || 'Failed to login',
       });
-      throw error;
+      throw authError;
     }
   };
 
@@ -88,14 +93,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
         isAuthenticated: true,
         error: null,
       });
-    } catch (error: any) {
+    } catch (error) {
+      const authError = error as AuthError;
       setState({
         user: null,
         isLoading: false,
         isAuthenticated: false,
-        error: error.message || 'Failed to register',
+        error: authError.message || 'Failed to register',
       });
-      throw error;
+      throw authError;
     }
   };
 
@@ -109,13 +115,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         isAuthenticated: false,
         error: null,
       });
-    } catch (error: any) {
+    } catch (error) {
+      const authError = error as AuthError;
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: error.message || 'Failed to logout',
+        error: authError.message || 'Failed to logout',
       }));
-      throw error;
+      throw authError;
     }
   };
 
@@ -129,14 +136,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
         isAuthenticated: true,
         error: null,
       });
-    } catch (error: any) {
+    } catch (error) {
+      const authError = error as AuthError;
       setState({
         user: null,
         isLoading: false,
         isAuthenticated: false,
-        error: error.message || 'Failed to refresh user',
+        error: authError.message || 'Failed to refresh user',
       });
-      throw error;
+      throw authError;
     }
   };
 

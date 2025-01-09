@@ -1,19 +1,23 @@
 import { Chain, TransactionRequest, WalletError, WalletProvider, WalletState } from './types';
 import { getChainById } from './chains';
 
+interface EthereumProvider {
+  request(args: { method: string; params?: unknown[] }): Promise<unknown>;
+}
+
 declare global {
   interface Window {
-    ethereum?: any;
+    ethereum?: EthereumProvider;
   }
 }
 
 class BlockchainClient {
-  private provider: any;
+  private provider: EthereumProvider | null = null;
   private walletProvider: WalletProvider | null = null;
 
   constructor() {
     if (typeof window !== 'undefined') {
-      this.provider = window.ethereum;
+      this.provider = window.ethereum ?? null;
     }
   }
 
@@ -26,8 +30,8 @@ class BlockchainClient {
       this.walletProvider = provider;
 
       // Request account access
-      const accounts = await this.provider.request({ method: 'eth_requestAccounts' });
-      const chainId = await this.provider.request({ method: 'eth_chainId' });
+      const accounts = (await this.provider.request({ method: 'eth_requestAccounts' })) as string[];
+      const chainId = (await this.provider.request({ method: 'eth_chainId' })) as string;
 
       return {
         address: accounts[0],
@@ -37,8 +41,9 @@ class BlockchainClient {
         isDisconnected: false,
         error: null,
       };
-    } catch (error: any) {
-      throw this.createError('CONNECT_ERROR', error.message);
+    } catch (error) {
+      const err = error as Error;
+      throw this.createError('CONNECT_ERROR', err.message);
     }
   }
 
@@ -48,6 +53,10 @@ class BlockchainClient {
 
   public async switchChain(chainId: number): Promise<void> {
     try {
+      if (!this.provider) {
+        throw this.createError('NO_PROVIDER', 'No wallet provider found');
+      }
+
       const chain = getChainById(chainId);
       if (!chain) {
         throw this.createError('INVALID_CHAIN', 'Invalid chain ID');
@@ -57,18 +66,23 @@ class BlockchainClient {
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: `0x${chainId.toString(16)}` }],
       });
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as { code: number; message: string };
       // If the chain hasn't been added to the wallet
-      if (error.code === 4902) {
+      if (err.code === 4902) {
         await this.addChain(chainId);
       } else {
-        throw this.createError('SWITCH_CHAIN_ERROR', error.message);
+        throw this.createError('SWITCH_CHAIN_ERROR', err.message);
       }
     }
   }
 
   public async addChain(chainId: number): Promise<void> {
     try {
+      if (!this.provider) {
+        throw this.createError('NO_PROVIDER', 'No wallet provider found');
+      }
+
       const chain = getChainById(chainId);
       if (!chain) {
         throw this.createError('INVALID_CHAIN', 'Invalid chain ID');
@@ -78,15 +92,20 @@ class BlockchainClient {
         method: 'wallet_addEthereumChain',
         params: [this.formatChainForWallet(chain)],
       });
-    } catch (error: any) {
-      throw this.createError('ADD_CHAIN_ERROR', error.message);
+    } catch (error) {
+      const err = error as Error;
+      throw this.createError('ADD_CHAIN_ERROR', err.message);
     }
   }
 
   public async sendTransaction(request: TransactionRequest): Promise<string> {
     try {
-      const accounts = await this.provider.request({ method: 'eth_accounts' });
-      const txHash = await this.provider.request({
+      if (!this.provider) {
+        throw this.createError('NO_PROVIDER', 'No wallet provider found');
+      }
+
+      const accounts = (await this.provider.request({ method: 'eth_accounts' })) as string[];
+      const txHash = (await this.provider.request({
         method: 'eth_sendTransaction',
         params: [{
           from: accounts[0],
@@ -95,25 +114,31 @@ class BlockchainClient {
           data: request.data,
           chainId: request.chainId ? `0x${request.chainId.toString(16)}` : undefined,
         }],
-      });
+      })) as string;
 
       return txHash;
-    } catch (error: any) {
-      throw this.createError('TRANSACTION_ERROR', error.message);
+    } catch (error) {
+      const err = error as Error;
+      throw this.createError('TRANSACTION_ERROR', err.message);
     }
   }
 
   public async signMessage(message: string): Promise<string> {
     try {
-      const accounts = await this.provider.request({ method: 'eth_accounts' });
-      const signature = await this.provider.request({
+      if (!this.provider) {
+        throw this.createError('NO_PROVIDER', 'No wallet provider found');
+      }
+
+      const accounts = (await this.provider.request({ method: 'eth_accounts' })) as string[];
+      const signature = (await this.provider.request({
         method: 'personal_sign',
         params: [message, accounts[0]],
-      });
+      })) as string;
 
       return signature;
-    } catch (error: any) {
-      throw this.createError('SIGN_ERROR', error.message);
+    } catch (error) {
+      const err = error as Error;
+      throw this.createError('SIGN_ERROR', err.message);
     }
   }
 

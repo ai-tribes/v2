@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { WalletState, WalletProvider, TransactionRequest } from './types';
+import { WalletState, WalletProvider, TransactionRequest, WalletError } from './types';
 import { blockchainClient } from './client';
 
 interface BlockchainContextType extends WalletState {
@@ -34,10 +34,11 @@ export function BlockchainProvider({ children }: BlockchainProviderProps) {
         try {
           const walletState = await blockchainClient.connect();
           setState(walletState);
-        } catch (error: any) {
+        } catch (error) {
+          const err = error as WalletError;
           setState(prev => ({
             ...prev,
-            error: error.message,
+            error: err.message,
           }));
         }
       }
@@ -51,16 +52,17 @@ export function BlockchainProvider({ children }: BlockchainProviderProps) {
     try {
       const walletState = await blockchainClient.connect(provider);
       setState(walletState);
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as WalletError;
       setState({
         address: null,
         chainId: null,
         isConnecting: false,
         isConnected: false,
         isDisconnected: true,
-        error: error.message,
+        error: err.message,
       });
-      throw error;
+      throw err;
     }
   };
 
@@ -75,12 +77,13 @@ export function BlockchainProvider({ children }: BlockchainProviderProps) {
         isDisconnected: true,
         error: null,
       });
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as WalletError;
       setState(prev => ({
         ...prev,
-        error: error.message,
+        error: err.message,
       }));
-      throw error;
+      throw err;
     }
   };
 
@@ -92,36 +95,39 @@ export function BlockchainProvider({ children }: BlockchainProviderProps) {
         chainId,
         error: null,
       }));
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as WalletError;
       setState(prev => ({
         ...prev,
-        error: error.message,
+        error: err.message,
       }));
-      throw error;
+      throw err;
     }
   };
 
   const sendTransaction = async (request: TransactionRequest) => {
     try {
       return await blockchainClient.sendTransaction(request);
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as WalletError;
       setState(prev => ({
         ...prev,
-        error: error.message,
+        error: err.message,
       }));
-      throw error;
+      throw err;
     }
   };
 
   const signMessage = async (message: string) => {
     try {
       return await blockchainClient.signMessage(message);
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as WalletError;
       setState(prev => ({
         ...prev,
-        error: error.message,
+        error: err.message,
       }));
-      throw error;
+      throw err;
     }
   };
 
