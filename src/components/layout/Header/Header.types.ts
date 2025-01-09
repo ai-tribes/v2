@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { RouteType } from '@/lib/routing/types';
 
 export interface HeaderProps {
   /**
@@ -11,7 +12,7 @@ export interface HeaderProps {
    */
   navigation?: {
     label: string;
-    href: string;
+    href: RouteType;
     isExternal?: boolean;
   }[];
 
