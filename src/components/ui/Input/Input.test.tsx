@@ -1,8 +1,8 @@
-import { render, screen } from '@/lib/test-utils';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { Input } from './Input';
 
 describe('Input', () => {
-  it('renders default input correctly', () => {
+  it('renders correctly', () => {
     render(<Input placeholder="Enter text" />);
     expect(screen.getByPlaceholderText('Enter text')).toBeInTheDocument();
   });
@@ -12,18 +12,14 @@ describe('Input', () => {
     expect(screen.getByText('Username')).toBeInTheDocument();
   });
 
-  it('applies size classes correctly', () => {
-    const { rerender } = render(<Input size="sm" />);
-    expect(screen.getByRole('textbox')).toHaveClass('form-control-sm');
-
-    rerender(<Input size="lg" />);
-    expect(screen.getByRole('textbox')).toHaveClass('form-control-lg');
+  it('shows required indicator when isRequired is true', () => {
+    render(<Input label="Username" isRequired />);
+    expect(screen.getByText('*')).toBeInTheDocument();
   });
 
   it('shows error message when error is provided', () => {
     render(<Input error="This field is required" />);
     expect(screen.getByText('This field is required')).toBeInTheDocument();
-    expect(screen.getByRole('textbox')).toHaveClass('is-invalid');
   });
 
   it('shows helper text when provided', () => {
@@ -31,18 +27,73 @@ describe('Input', () => {
     expect(screen.getByText('Must be at least 8 characters')).toBeInTheDocument();
   });
 
-  it('applies full width class when isFullWidth is true', () => {
-    render(<Input isFullWidth />);
-    expect(screen.getByRole('textbox')).toHaveClass('w-100');
+  it('handles value changes', () => {
+    const handleChange = jest.fn();
+    render(<Input onChange={handleChange} />);
+    
+    const input = screen.getByRole('textbox');
+    fireEvent.change(input, { target: { value: 'test' } });
+    
+    expect(handleChange).toHaveBeenCalled();
   });
 
-  it('renders floating label variant correctly', () => {
-    render(<Input variant="floating" label="Email" />);
-    expect(screen.getByRole('textbox').parentElement).toHaveClass('form-floating');
+  it('can be disabled', () => {
+    render(<Input isDisabled />);
+    expect(screen.getByRole('textbox')).toBeDisabled();
   });
 
-  it('merges custom className with default classes', () => {
-    render(<Input className="custom-class" />);
-    expect(screen.getByRole('textbox')).toHaveClass('form-control', 'custom-class');
+  it('can be readonly', () => {
+    render(<Input isReadOnly />);
+    expect(screen.getByRole('textbox')).toHaveAttribute('readonly');
+  });
+
+  it('renders left element when provided', () => {
+    render(
+      <Input
+        leftElement={<span data-testid="left-element">@</span>}
+        placeholder="Username"
+      />
+    );
+    expect(screen.getByTestId('left-element')).toBeInTheDocument();
+  });
+
+  it('renders right element when provided', () => {
+    render(
+      <Input
+        rightElement={<span data-testid="right-element">✓</span>}
+        placeholder="Username"
+      />
+    );
+    expect(screen.getByTestId('right-element')).toBeInTheDocument();
+  });
+
+  it('applies variant classes correctly', () => {
+    const { rerender } = render(<Input variant="outline" />);
+    expect(screen.getByRole('textbox')).toHaveClass('border-input');
+
+    rerender(<Input variant="filled" />);
+    expect(screen.getByRole('textbox')).toHaveClass('bg-secondary');
+
+    rerender(<Input variant="flushed" />);
+    expect(screen.getByRole('textbox')).toHaveClass('rounded-none');
+
+    rerender(<Input variant="unstyled" />);
+    expect(screen.getByRole('textbox')).toHaveClass('border-none');
+  });
+
+  it('applies size classes correctly', () => {
+    const { rerender } = render(<Input size="sm" />);
+    expect(screen.getByRole('textbox')).toHaveClass('h-8');
+
+    rerender(<Input size="md" />);
+    expect(screen.getByRole('textbox')).toHaveClass('h-10');
+
+    rerender(<Input size="lg" />);
+    expect(screen.getByRole('textbox')).toHaveClass('h-12');
+  });
+
+  it('applies error styles when isInvalid is true', () => {
+    render(<Input isInvalid />);
+    expect(screen.getByRole('textbox')).toHaveClass('border-destructive');
   });
 }); 
