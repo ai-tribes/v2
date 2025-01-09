@@ -24,7 +24,7 @@ export default function ExamplesPage() {
 
   return (
     <div className="container py-5">
-      <h1 className="mb-4">Examples</h1>
+      <h1 className="mb-4">AI Tribes Examples</h1>
       
       <div className="row g-4">
         {examples.map((example, index) => (
