@@ -2,6 +2,7 @@ import { forwardRef } from 'react';
 import Link from 'next/link';
 import { HeaderProps } from './Header.types';
 import { cn } from '@/lib/utils';
+import { isExternalRoute } from '@/lib/routing/types';
 
 export const Header = forwardRef<HTMLElement, HeaderProps>(
   (
@@ -51,8 +52,8 @@ export const Header = forwardRef<HTMLElement, HeaderProps>(
           <div className={`collapse navbar-collapse ${isMobileMenuOpen ? 'show' : ''}`}>
             {/* Desktop Navigation */}
             <nav className="navbar-nav me-auto mb-2 mb-md-0">
-              {navigation.map(({ label, href, isExternal }) => (
-                isExternal ? (
+              {navigation.map(({ label, href }) => (
+                isExternalRoute(href) ? (
                   <a
                     key={href}
                     href={href}
