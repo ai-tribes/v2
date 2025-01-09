@@ -1,7 +1,13 @@
-import { StorageConfig, StorageError, StorageMetadata, UploadOptions, UploadResult } from '../types';
+import { StorageConfig, StorageError, StorageMetadata, UploadOptions, UploadResult, StorageProvider, StorageType } from '../types';
 import { encryptionService } from '../encryption';
 
-export class IPFSStorageProvider {
+export class IPFSStorageProvider implements StorageProvider {
+  public readonly type: StorageType = 'ipfs';
+  public readonly name = 'IPFS Storage';
+  public readonly description = 'Decentralized IPFS storage provider';
+  public readonly permanent = true;
+  public readonly encryption: boolean;
+
   private config: StorageConfig;
   private gateway: string;
 
@@ -12,6 +18,7 @@ export class IPFSStorageProvider {
       ...config,
     };
     this.gateway = this.config.ipfsGateway!;
+    this.encryption = this.config.encryption || false;
 
     if (this.config.encryption && this.config.encryptionKey) {
       encryptionService.initialize(this.config.encryptionKey);

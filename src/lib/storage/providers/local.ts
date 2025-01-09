@@ -1,7 +1,13 @@
-import { StorageConfig, StorageItem, StorageError, StorageMetadata } from '../types';
+import { StorageConfig, StorageItem, StorageError, StorageMetadata, StorageProvider, StorageType } from '../types';
 import { encryptionService } from '../encryption';
 
-export class LocalStorageProvider {
+export class LocalStorageProvider implements StorageProvider {
+  public readonly type: StorageType = 'local';
+  public readonly name = 'Local Storage';
+  public readonly description = 'Browser-based local storage provider';
+  public readonly permanent = false;
+  public readonly encryption: boolean;
+
   private config: StorageConfig;
 
   constructor(config: StorageConfig = {}) {
@@ -10,6 +16,7 @@ export class LocalStorageProvider {
       encryption: false,
       ...config,
     };
+    this.encryption = this.config.encryption || false;
 
     if (this.config.encryption && this.config.encryptionKey) {
       encryptionService.initialize(this.config.encryptionKey);
@@ -82,13 +89,13 @@ export class LocalStorageProvider {
     }
   }
 
-  public async getMetadata(key: string): Promise<StorageMetadata | null> {
+  public async getMetadata(key: string): Promise<StorageMetadata> {
     try {
       const fullKey = this.getFullKey(key);
       const rawItem = localStorage.getItem(fullKey);
 
       if (!rawItem) {
-        return null;
+        throw this.createError('NOT_FOUND', `Item with key ${key} not found`);
       }
 
       const item: StorageItem = JSON.parse(rawItem);

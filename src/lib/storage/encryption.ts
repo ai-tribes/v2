@@ -18,14 +18,14 @@ export class EncryptionService {
         this.key = await crypto.subtle.importKey(
           'raw',
           keyBuffer,
-          { name: this.ALGORITHM, length: this.KEY_LENGTH },
+          { name: EncryptionService.ALGORITHM, length: EncryptionService.KEY_LENGTH },
           false,
           ['encrypt', 'decrypt']
         );
       } else {
         // Generate a new random key
         this.key = await crypto.subtle.generateKey(
-          { name: this.ALGORITHM, length: this.KEY_LENGTH },
+          { name: EncryptionService.ALGORITHM, length: EncryptionService.KEY_LENGTH },
           true,
           ['encrypt', 'decrypt']
         );
@@ -42,12 +42,12 @@ export class EncryptionService {
 
     try {
       // Generate random IV
-      const iv = crypto.getRandomValues(new Uint8Array(this.IV_LENGTH));
+      const iv = crypto.getRandomValues(new Uint8Array(EncryptionService.IV_LENGTH));
       
       // Encrypt the data
       const encodedData = new TextEncoder().encode(data);
       const encryptedBuffer = await crypto.subtle.encrypt(
-        { name: this.ALGORITHM, iv },
+        { name: EncryptionService.ALGORITHM, iv },
         this.key,
         encodedData
       );
@@ -77,7 +77,7 @@ export class EncryptionService {
 
       // Decrypt the data
       const decryptedBuffer = await crypto.subtle.decrypt(
-        { name: this.ALGORITHM, iv: ivBuffer },
+        { name: EncryptionService.ALGORITHM, iv: ivBuffer },
         this.key,
         encryptedBuffer
       );

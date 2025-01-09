@@ -40,11 +40,23 @@ export interface UploadResult {
 }
 
 export interface StorageProvider {
+  // Common properties
   type: StorageType;
   name: string;
   description: string;
   permanent: boolean;
   encryption: boolean;
+
+  // Local storage methods
+  set?(key: string, value: any): Promise<void>;
+  get?<T = any>(key: string): Promise<T | null>;
+  remove?(key: string): Promise<void>;
+  clear?(): Promise<void>;
+
+  // IPFS/Arweave methods
+  upload?(data: string | Blob | File, options?: UploadOptions): Promise<UploadResult>;
+  download?(hash: string): Promise<Blob>;
+  getMetadata?(hash: string): Promise<StorageMetadata>;
 }
 
 export const STORAGE_TYPES = {
