@@ -28,11 +28,9 @@ export function createInternalRoute(path: string): InternalRoute {
 }
 
 export function createExternalRoute(url: string): ExternalRoute {
-  // Validate URL format
-  try {
-    new URL(url); // This validates the URL format
-    return url;
-  } catch (e) {
-    throw new Error(`Invalid URL format: ${url}`);
+  // Validate URL format using string checks
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    throw new Error(`Invalid URL format: ${url}. URL must start with http:// or https://`);
   }
+  return url;
 } 
