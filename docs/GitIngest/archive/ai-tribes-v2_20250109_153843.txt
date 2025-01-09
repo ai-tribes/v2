@@ -1,8 +1,5 @@
-<<<<<<< HEAD
+WARNING: This is an archived GitIngest from 20250109_153843. Do not use as current reference.
 Current GitIngest generated on: Thu Jan  9 15:38:35 GMT 2025
-=======
-Current GitIngest generated on: Thu Jan  9 15:38:43 GMT 2025
->>>>>>> 8ce33ea (fix: update Card component to use route types)
 
 Directory structure:
 .
@@ -17,12 +14,7 @@ Directory structure:
 │   │       ├── ai-tribes-v2_20250109_151719.txt
 │   │       ├── ai-tribes-v2_20250109_152353.txt
 │   │       ├── ai-tribes-v2_20250109_153625.txt
-<<<<<<< HEAD
 │   │       └── ai-tribes-v2_20250109_153835.txt
-=======
-│   │       ├── ai-tribes-v2_20250109_153835.txt
-│   │       └── ai-tribes-v2_20250109_153843.txt
->>>>>>> 8ce33ea (fix: update Card component to use route types)
 │   ├── README.md
 │   ├── SETUP_GUIDE.md
 │   ├── analysis
@@ -148,11 +140,7 @@ Directory structure:
 │       └── utils.ts
 └── tsconfig.json
 
-<<<<<<< HEAD
 32 directories, 105 files
-=======
-32 directories, 106 files
->>>>>>> 8ce33ea (fix: update Card component to use route types)
 
 ================================================
 File: /README.md
