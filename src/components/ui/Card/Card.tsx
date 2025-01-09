@@ -1,33 +1,32 @@
-import { ExampleCardProps } from './Card.types';
 import Link from 'next/link';
+import { ExampleCardProps } from './Card.types';
+import { isExternalRoute } from '@/lib/routing/types';
 
 export function ExampleCard({ title, description, ctaText, ctaHref }: ExampleCardProps) {
+  const linkClassName = "btn btn-primary d-inline-flex align-items-center";
+
   return (
     <div className="card h-100">
       <div className="card-body">
-        <h3 className="card-title">{title}</h3>
+        <h5 className="card-title">{title}</h5>
         <p className="card-text">{description}</p>
-        <Link 
-          href={ctaHref}
-          className="btn btn-primary d-inline-flex align-items-center"
-        >
-          {ctaText}
-          <svg
-            className="ms-2"
-            style={{ width: '1rem', height: '1rem' }}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
+        {isExternalRoute(ctaHref) ? (
+          <a
+            href={ctaHref}
+            className={linkClassName}
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </Link>
+            {ctaText}
+          </a>
+        ) : (
+          <Link
+            href={ctaHref}
+            className={linkClassName}
+          >
+            {ctaText}
+          </Link>
+        )}
       </div>
     </div>
   );
