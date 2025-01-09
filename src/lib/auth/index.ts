@@ -1,2 +1,6 @@
-// Auth utilities will be exported from here
-export const AUTH_TYPES = ['email', 'wallet'] as const; 
+export * from './types';
+export * from './client';
+export * from './context';
+export * from './hooks';
+
+export const AUTH_VERSION = 'v1'; 
