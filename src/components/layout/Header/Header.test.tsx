@@ -1,37 +1,31 @@
 import { render, screen } from '@testing-library/react';
 import { Header } from './Header';
-import { HeaderProps } from './Header.types';
-
-const mockHeaderProps: HeaderProps = {
-  logo: <div>Logo</div>,
-  navigation: [
-    { label: 'Home', href: '/' },
-    { label: 'About', href: '/about' },
-  ],
-  actions: (
-    <>
-      <a href="/login">Login</a>
-      <a href="/signup">Sign Up</a>
-    </>
-  ),
-};
-
-const TestHeader = () => <Header {...mockHeaderProps} />;
-
-TestHeader.displayName = 'TestHeader';
+import { createInternalRoute } from '@/lib/routing/types';
+import Link from 'next/link';
 
 describe('Header', () => {
-  it('renders logo, navigation and action items', () => {
-    render(<TestHeader />);
-    
-    // Logo
-    expect(screen.getByText('Logo')).toBeInTheDocument();
-    
-    // Navigation
+  it('renders navigation links correctly', () => {
+    const navigation = [
+      { label: 'Home', href: createInternalRoute('/') },
+      { label: 'About', href: createInternalRoute('/about') },
+    ];
+
+    render(<Header navigation={navigation} />);
+
     expect(screen.getByText('Home')).toBeInTheDocument();
     expect(screen.getByText('About')).toBeInTheDocument();
-    
-    // Actions
+  });
+
+  it('renders actions correctly', () => {
+    const actions = (
+      <>
+        <Link href={createInternalRoute('/login')}>Login</Link>
+        <Link href={createInternalRoute('/signup')}>Sign Up</Link>
+      </>
+    );
+
+    render(<Header actions={actions} />);
+
     expect(screen.getByText('Login')).toBeInTheDocument();
     expect(screen.getByText('Sign Up')).toBeInTheDocument();
   });
