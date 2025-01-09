@@ -1,4 +1,5 @@
-Current GitIngest generated on: Thu Jan  9 15:41:51 GMT 2025
+WARNING: This is an archived GitIngest from 20250109_153843. Do not use as current reference.
+Current GitIngest generated on: Thu Jan  9 15:38:35 GMT 2025
 
 Directory structure:
 .
@@ -13,9 +14,7 @@ Directory structure:
 │   │       ├── ai-tribes-v2_20250109_151719.txt
 │   │       ├── ai-tribes-v2_20250109_152353.txt
 │   │       ├── ai-tribes-v2_20250109_153625.txt
-│   │       ├── ai-tribes-v2_20250109_153835.txt
-│   │       ├── ai-tribes-v2_20250109_153843.txt
-│   │       └── ai-tribes-v2_20250109_154151.txt
+│   │       └── ai-tribes-v2_20250109_153835.txt
 │   ├── README.md
 │   ├── SETUP_GUIDE.md
 │   ├── analysis
@@ -141,7 +140,7 @@ Directory structure:
 │       └── utils.ts
 └── tsconfig.json
 
-32 directories, 107 files
+32 directories, 105 files
 
 ================================================
 File: /README.md
