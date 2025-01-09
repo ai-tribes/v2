@@ -1,0 +1,101 @@
+Code Organization Issues:
+
+1. Mixed Routing Paradigms:
+   - Both /pages and /app directories present
+   - This suggests incomplete migration to Next.js 13+ App Router
+   - Need to standardize on App Router and remove Pages Router
+
+2. Directory Structure Concerns:
+   - Multiple asset locations (/public/assets, /src/assets)
+   - Multiple style locations (/src/styles, /app/*.module.css)
+   - Potential duplicate functionality between /utils and /hooks
+   - Config split between /src/config and root config files
+
+3. Component Organization:
+   - Need to verify component categorization
+   - Check for component reusability
+   - Ensure proper separation of concerns
+   - Verify proper use of hooks and contexts
+
+4. Type System:
+   - /types directory exists but need to verify coverage
+   - Check for proper type exports
+   - Verify type usage across components
+   - Ensure proper type safety
+
+5. State Management:
+   - Multiple contexts in /contexts
+   - Need to verify state management patterns
+   - Check for prop drilling issues
+   - Verify context boundaries
+
+6. Code Duplication:
+   - Multiple similar components possible
+   - Utils might have duplicate functionality
+   - Hooks might have overlapping functionality
+   - Styles might have redundant definitions
+
+7. File Organization:
+   - Need consistent file naming convention
+   - Need consistent directory structure
+   - Need proper index exports
+   - Need proper module boundaries
+
+8. Code Splitting:
+   - Verify proper use of dynamic imports
+   - Check bundle sizes
+   - Verify route-based code splitting
+   - Check for unnecessary imports
+
+Action Items:
+
+1. Routing Migration:
+   - Complete migration to App Router
+   - Remove Pages Router code
+   - Update all routing logic
+   - Update all navigation components
+
+2. Asset Organization:
+   - Consolidate assets in one location
+   - Organize by type and purpose
+   - Implement proper asset optimization
+   - Set up proper asset loading
+
+3. Component Structure:
+   - Implement proper component hierarchy
+   - Create shared component library
+   - Document component usage
+   - Implement proper prop types
+
+4. Type System:
+   - Complete type coverage
+   - Create proper type exports
+   - Implement stricter type checking
+   - Document type usage
+
+5. State Management:
+   - Review and consolidate contexts
+   - Implement proper state patterns
+   - Document state flow
+   - Optimize state updates
+
+6. Code Quality:
+   - Remove duplicate code
+   - Create shared utilities
+   - Implement proper error boundaries
+   - Add proper logging
+
+7. Build Optimization:
+   - Implement proper code splitting
+   - Optimize bundle sizes
+   - Implement proper caching
+   - Add performance monitoring
+
+Next Steps:
+1. Audit each directory for actual usage
+2. Create component inventory
+3. Document state flow
+4. Create migration plan
+5. Implement changes systematically
+
+This is an initial analysis based on directory structure. We'll need to examine actual code files to verify these issues and potentially identify more. 

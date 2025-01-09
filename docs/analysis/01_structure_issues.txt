@@ -1,0 +1,60 @@
+Initial Project Structure Issues:
+
+1. Configuration File Redundancy:
+   - Multiple Next.js config files present: next.config.js, next.config.mjs, next.config.ts
+   - This can cause confusion and potential conflicts
+   - Need to standardize on one (preferably next.config.mjs for modern ESM)
+
+2. Legacy/Deprecated Files:
+   - 'notpages' directory suggests old Next.js pages structure
+   - Contains 'notroadmap.js' and 'nottoken.js' which seem to be deprecated
+   - Need to clean up or migrate these to the app router structure
+
+3. Mixed Component Technologies:
+   - Mix of .jsx and .tsx files (e.g., in roadmap components)
+   - Should standardize on TypeScript (.tsx) for consistency
+
+4. Asset Organization Issues:
+   - Multiple version files (ai-tribes-0.0.3.txt, ai-tribes-NEXT.txt)
+   - Redundant CSS locations (public/assets/css and src/app/styles)
+   - JS files in multiple locations (public/assets/js and src/js)
+
+5. Documentation Structure:
+   - Business documents mixed with code (financials.xlsx, roadmap.tex)
+   - Should be moved to a dedicated docs directory outside source
+
+6. Component Organization:
+   - Some components have their own modules while others share directories
+   - Inconsistent module naming (some use index.tsx, others direct names)
+   - Need to standardize component organization pattern
+
+7. Static Assets:
+   - Many asset directories seem to lack proper organization
+   - Multiple directories for similar purposes (images, heroimages, icons)
+   - Need to consolidate and organize static assets
+
+8. Build Configuration:
+   - Multiple configuration files present (eslint.config.mjs, tsconfig.json)
+   - Need to verify all are necessary and properly configured
+
+9. HTML Files in React Project:
+   - Standalone HTML files (team.html, token.html) in root
+   - These should be converted to React components if still needed
+
+10. Potential Dead Code:
+    - 'old' directory in components suggests deprecated code
+    - Need to verify if these are still needed or can be removed
+
+Action Items:
+1. Consolidate configuration files
+2. Clean up deprecated directories and files
+3. Standardize on TypeScript
+4. Reorganize asset structure
+5. Separate documentation from source code
+6. Implement consistent component organization
+7. Clean up static assets
+8. Verify build configurations
+9. Convert standalone HTML to React
+10. Remove dead code
+
+This is just the initial structural analysis. We'll need to dive deeper into each component and configuration file to identify more specific issues. 
