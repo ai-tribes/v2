@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { FooterProps } from './Footer.types';
 import { cn } from '@/lib/utils';
+import { isExternalRoute } from '@/lib/routing/types';
 
 export function Footer({ 
   logo,
@@ -34,13 +35,23 @@ export function Footer({
                   <ul className="nav flex-column">
                     {group.links.map((link) => (
                       <li key={link.label} className="nav-item">
-                        <Link
-                          href={link.href}
-                          className="nav-link px-0 py-1 text-muted"
-                          {...(link.isExternal && { target: '_blank', rel: 'noopener noreferrer' })}
-                        >
-                          {link.label}
-                        </Link>
+                        {isExternalRoute(link.href) ? (
+                          <a
+                            href={link.href}
+                            className="nav-link px-0 py-1 text-muted"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {link.label}
+                          </a>
+                        ) : (
+                          <Link
+                            href={link.href}
+                            className="nav-link px-0 py-1 text-muted"
+                          >
+                            {link.label}
+                          </Link>
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -60,7 +71,7 @@ export function Footer({
             {socialLinks.length > 0 && (
               <div className="nav">
                 {socialLinks.map((social) => (
-                  <Link
+                  <a
                     key={social.label}
                     href={social.href}
                     className="nav-link text-muted px-2"
@@ -69,7 +80,7 @@ export function Footer({
                     aria-label={social.label}
                   >
                     {social.icon}
-                  </Link>
+                  </a>
                 ))}
               </div>
             )}
