@@ -1,1 +1,3 @@
-// Layout components will be exported from here 
+export * from './Header/Header';
+export * from './Footer/Footer';
+export * from './MainLayout/MainLayout'; 
