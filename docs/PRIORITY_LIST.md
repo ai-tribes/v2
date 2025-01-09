@@ -1,10 +1,15 @@
 # AI Tribes Priority List
 
+## Current Status
+- Project initialized with Next.js and TypeScript
+- Bootstrap 5 installed for styling
+- Basic project structure in place
+
 ## Week 1: Foundation
 ### Day 1-2: Project Structure
-1. Set up new directory structure
-   - Create `src/features/`
-   - Create `src/lib/`
+1. Complete Directory Structure
+   - Set up `src/features/`
+   - Set up `src/lib/`
    - Set up proper `src/components/`
 
 2. Configure Build Tools
@@ -15,10 +20,10 @@
 
 ### Day 3-4: Core Components
 1. UI Component Library
-   - Move and refactor basic components
+   - Create basic Bootstrap 5 components
    - Set up shared components
    - Implement layout system
-   - Add basic styling system
+   - Add custom styling on top of Bootstrap
 
 2. Type System
    - Set up base types
